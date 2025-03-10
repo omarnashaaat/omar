@@ -3,149 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جدول بيانات السيارات</title>
+    <title>إدارة بيانات السيارات</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background: linear-gradient(to right, #2193b0, #6dd5ed);
+            margin: 0;
+            padding: 0;
             direction: rtl;
         }
+        h2 {
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .form-container, table {
+            background: white;
+            width: 50%;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        input, select, button {
+            width: 90%;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .add-btn, .back-btn {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
         table {
-            width: 80%;
+            width: 90%;
             margin: 20px auto;
             border-collapse: collapse;
         }
         th, td {
-            border: 1px solid #000;
-            padding: 10px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: #007bff;
+            color: white;
         }
-        input, select, button {
-            margin: 5px;
-            padding: 5px;
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
-<body onload="loadData()">
-    <h2>جدول بيانات السيارات</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>التاريخ</th>
-                <th>اسم العميل</th>
-                <th>موبايل</th>
-                <th>نوع السيارة</th>
-                <th>الموديل</th>
-                <th>الشاسية</th>
-                <th>رقم السيارة</th>
-                <th>كيلو متر</th>
-                <th>إجراء</th>
-            </tr>
-        </thead>
-        <tbody id="carTableBody">
-        </tbody>
-    </table>
-    <br>
-    <input type="text" id="date" disabled>
-    <input type="text" id="customerName" placeholder="اسم العميل">
-    <input type="text" id="mobile" placeholder="موبايل">
-    <select id="carType">
-        <option value="N17">N17</option>
-        <option value="B17">B17</option>
-        <option value="C11">C11</option>
-        <option value="C12">C12</option>
-        <option value="E25">E25</option>
-        <option value="E26">E26</option>
-        <option value="F15">F15</option>
-        <option value="F16">F16</option>
-        <option value="G11">G11</option>
-        <option value="J10">J10</option>
-        <option value="J11">J11</option>
-        <option value="J12">J12</option>
-        <option value="N16">N16</option>
-        <option value="T30">T30</option>
-        <option value="OTH">OTH</option>
-    </select>
-    <input type="text" id="model" placeholder="الموديل">
-    <input type="text" id="chassis" placeholder="الشاسية">
-    <input type="text" id="carNumber" placeholder="رقم السيارة">
-    <input type="number" id="km" placeholder="كيلو متر">
-    <button onclick="addRow()">إضافة</button>
+<body>
+
+    <h2>🚗 إدارة بيانات السيارات 🚗</h2>
+
+    <!-- صفحة إدخال البيانات -->
+    <div id="formPage" class="container active">
+        <div class="form-container">
+            <h3>📌 إضافة سيارة جديدة</h3>
+            <input type="text" id="customerName" placeholder="اسم العميل">
+            <input type="text" id="mobile" placeholder="رقم الموبايل">
+            <select id="carType">
+                <option value="N17">N17</option>
+                <option value="B17">B17</option>
+                <option value="C11">C11</option>
+                <option value="C12">C12</option>
+                <option value="E25">E25</option>
+                <option value="E26">E26</option>
+                <option value="F15">F15</option>
+                <option value="F16">F16</option>
+                <option value="G11">G11</option>
+                <option value="J10">J10</option>
+                <option value="J11">J11</option>
+                <option value="J12">J12</option>
+                <option value="N16">N16</option>
+                <option value="T30">T30</option>
+                <option value="OTH">OTH</option>
+            </select>
+            <input type="text" id="carModel" placeholder="موديل">
+            <input type="text" id="chassis" placeholder="شاسية">
+            <input type="text" id="plateNumber" placeholder="رقم السيارة">
+            <input type="text" id="km" placeholder="كيلو متر">
+            <input type="text" id="notes" placeholder="ملاحظات">
+            <button class="add-btn" onclick="addCar()">إضافة وحفظ</button>
+        </div>
+    </div>
+
+    <!-- صفحة عرض الجدول -->
+    <div id="tablePage" class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>اسم العميل</th>
+                    <th>موبايل</th>
+                    <th>نوع السيارة</th>
+                    <th>موديل</th>
+                    <th>شاسية</th>
+                    <th>رقم السيارة</th>
+                    <th>كيلو متر</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="carTableBody"></tbody>
+        </table>
+        <button class="back-btn" onclick="showPage('formPage')">🔙 إضافة سيارة جديدة</button>
+    </div>
 
     <script>
-        function loadData() {
-            document.getElementById("date").value = new Date().toLocaleDateString("ar-EG");
-            let savedData = localStorage.getItem("carData");
-            if (savedData) {
-                document.getElementById("carTableBody").innerHTML = savedData;
-                addDeleteButtons();
+        function showPage(pageId) {
+            document.getElementById("formPage").classList.remove("active");
+            document.getElementById("tablePage").classList.remove("active");
+            document.getElementById(pageId).classList.add("active");
+            if (pageId === "tablePage") {
+                loadCars();
             }
         }
 
-        function saveData() {
-            localStorage.setItem("carData", document.getElementById("carTableBody").innerHTML);
+        function getFormattedDate() {
+            let today = new Date();
+            return today.toISOString().split('T')[0];
         }
 
-        function addRow() {
-            let table = document.getElementById("carTableBody");
-            let row = table.insertRow();
-            
-            let date = document.getElementById("date").value;
+        function addCar() {
             let customerName = document.getElementById("customerName").value;
             let mobile = document.getElementById("mobile").value;
             let carType = document.getElementById("carType").value;
-            let model = document.getElementById("model").value;
+            let carModel = document.getElementById("carModel").value;
             let chassis = document.getElementById("chassis").value;
-            let carNumber = document.getElementById("carNumber").value;
+            let plateNumber = document.getElementById("plateNumber").value;
             let km = document.getElementById("km").value;
-            
-            if (!customerName || !mobile || !carType || !model || !chassis || !carNumber || !km) {
-                alert("يرجى ملء جميع الحقول قبل الإضافة.");
+            let notes = document.getElementById("notes").value;
+            let date = getFormattedDate();
+
+            if (!customerName || !mobile || !carModel || !chassis || !plateNumber || !km) {
+                alert("يرجى ملء جميع الحقول!");
                 return;
             }
-            
-            let data = [date, customerName, mobile, carType, model, chassis, carNumber, km];
-            for (let i = 0; i < data.length; i++) {
-                let cell = row.insertCell(i);
-                cell.textContent = data[i];
-            }
-            
-            let deleteCell = row.insertCell(data.length);
-            let deleteButton = document.createElement("button");
-            deleteButton.textContent = "حذف";
-            deleteButton.onclick = function() {
-                row.remove();
-                saveData();
-            };
-            deleteCell.appendChild(deleteButton);
-            
-            saveData();
-            
-            document.getElementById("customerName").value = "";
-            document.getElementById("mobile").value = "";
-            document.getElementById("carType").value = "N17";
-            document.getElementById("model").value = "";
-            document.getElementById("chassis").value = "";
-            document.getElementById("carNumber").value = "";
-            document.getElementById("km").value = "";
+
+            let carData = { date, customerName, mobile, carType, carModel, chassis, plateNumber, km, notes };
+            let cars = JSON.parse(localStorage.getItem("cars")) || [];
+            cars.push(carData);
+            localStorage.setItem("cars", JSON.stringify(cars));
+
+            showPage("tablePage");
         }
 
-        function addDeleteButtons() {
-            let table = document.getElementById("carTableBody");
-            let rows = table.rows;
-            for (let row of rows) {
-                let deleteCell = row.insertCell(row.cells.length);
-                let deleteButton = document.createElement("button");
-                deleteButton.textContent = "حذف";
-                deleteButton.onclick = function() {
-                    row.remove();
-                    saveData();
-                };
-                deleteCell.appendChild(deleteButton);
-            }
+        function loadCars() {
+            let carTableBody = document.getElementById("carTableBody");
+            carTableBody.innerHTML = "";
+
+            let cars = JSON.parse(localStorage.getItem("cars")) || [];
+            cars.forEach((car, index) => {
+                let row = `<tr>
+                    <td>${car.date}</td>
+                    <td>${car.customerName}</td>
+                    <td>${car.mobile}</td>
+                    <td>${car.carType}</td>
+                    <td>${car.carModel}</td>
+                    <td>${car.chassis}</td>
+                    <td>${car.plateNumber}</td>
+                    <td>${car.km}</td>
+                    <td>${car.notes}</td>
+                    <td><button class="delete-btn" onclick="deleteCar(${index})">حذف</button></td>
+                </tr>`;
+                carTableBody.innerHTML += row;
+            });
+        }
+
+        function deleteCar(index) {
+            let cars = JSON.parse(localStorage.getItem("cars"));
+            cars.splice(index, 1);
+            localStorage.setItem("cars", JSON.stringify(cars));
+            loadCars();
         }
     </script>
+
 </body>
 </html>
