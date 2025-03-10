@@ -39,7 +39,7 @@
             border-radius: 5px;
             font-size: 16px;
         }
-        .add-btn, .back-btn {
+        .add-btn {
             background-color: #28a745;
             color: white;
             cursor: pointer;
@@ -67,16 +67,24 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        .edit-btn {
+            background-color: #ffc107;
+            color: white;
+            padding: 8px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
 
     <h2>🚗 إدارة بيانات السيارات 🚗</h2>
 
-    <!-- صفحة إدخال البيانات -->
     <div id="formPage" class="container active">
         <div class="form-container">
-            <h3>📌 إضافة سيارة جديدة</h3>
+            <h3 id="formTitle">📌 إضافة سيارة جديدة</h3>
+            <input type="hidden" id="editIndex">
             <input type="text" id="customerName" placeholder="اسم العميل">
             <input type="text" id="mobile" placeholder="رقم الموبايل">
             <select id="carType">
@@ -101,11 +109,10 @@
             <input type="text" id="plateNumber" placeholder="رقم السيارة">
             <input type="text" id="km" placeholder="كيلو متر">
             <input type="text" id="notes" placeholder="ملاحظات">
-            <button class="add-btn" onclick="addCar()">إضافة وحفظ</button>
+            <button class="add-btn" onclick="saveCar()">حفظ</button>
         </div>
     </div>
 
-    <!-- صفحة عرض الجدول -->
     <div id="tablePage" class="container">
         <table>
             <thead>
@@ -124,7 +131,7 @@
             </thead>
             <tbody id="carTableBody"></tbody>
         </table>
-        <button class="back-btn" onclick="showPage('formPage')">🔙 إضافة سيارة جديدة</button>
+        <button class="add-btn" onclick="showPage('formPage')">🔙 إضافة سيارة جديدة</button>
     </div>
 
     <script>
@@ -138,31 +145,33 @@
         }
 
         function getFormattedDate() {
-            let today = new Date();
-            return today.toISOString().split('T')[0];
+            return new Date().toISOString().split('T')[0];
         }
 
-        function addCar() {
-            let customerName = document.getElementById("customerName").value;
-            let mobile = document.getElementById("mobile").value;
-            let carType = document.getElementById("carType").value;
-            let carModel = document.getElementById("carModel").value;
-            let chassis = document.getElementById("chassis").value;
-            let plateNumber = document.getElementById("plateNumber").value;
-            let km = document.getElementById("km").value;
-            let notes = document.getElementById("notes").value;
-            let date = getFormattedDate();
+        function saveCar() {
+            let editIndex = document.getElementById("editIndex").value;
+            let car = {
+                date: getFormattedDate(),
+                customerName: document.getElementById("customerName").value,
+                mobile: document.getElementById("mobile").value,
+                carType: document.getElementById("carType").value,
+                carModel: document.getElementById("carModel").value,
+                chassis: document.getElementById("chassis").value,
+                plateNumber: document.getElementById("plateNumber").value,
+                km: document.getElementById("km").value,
+                notes: document.getElementById("notes").value
+            };
 
-            if (!customerName || !mobile || !carModel || !chassis || !plateNumber || !km) {
-                alert("يرجى ملء جميع الحقول!");
-                return;
+            let cars = JSON.parse(localStorage.getItem("cars")) || [];
+            
+            if (editIndex !== "") {
+                cars[editIndex] = car;
+            } else {
+                cars.push(car);
             }
 
-            let carData = { date, customerName, mobile, carType, carModel, chassis, plateNumber, km, notes };
-            let cars = JSON.parse(localStorage.getItem("cars")) || [];
-            cars.push(carData);
             localStorage.setItem("cars", JSON.stringify(cars));
-
+            document.getElementById("editIndex").value = "";
             showPage("tablePage");
         }
 
@@ -182,10 +191,24 @@
                     <td>${car.plateNumber}</td>
                     <td>${car.km}</td>
                     <td>${car.notes}</td>
-                    <td><button class="delete-btn" onclick="deleteCar(${index})">حذف</button></td>
+                    <td>
+                        <button class="edit-btn" onclick="editCar(${index})">✏️ تعديل</button>
+                        <button class="delete-btn" onclick="deleteCar(${index})">🗑 حذف</button>
+                    </td>
                 </tr>`;
                 carTableBody.innerHTML += row;
             });
+        }
+
+        function editCar(index) {
+            let cars = JSON.parse(localStorage.getItem("cars"));
+            let car = cars[index];
+
+            document.getElementById("customerName").value = car.customerName;
+            document.getElementById("mobile").value = car.mobile;
+            document.getElementById("editIndex").value = index;
+
+            showPage("formPage");
         }
 
         function deleteCar(index) {
